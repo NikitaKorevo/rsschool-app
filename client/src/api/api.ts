@@ -966,10 +966,10 @@ export interface CreateDiscordServerDto {
 export interface CreateGratitudeDto {
     /**
      * 
-     * @type {number}
+     * @type {Array<number>}
      * @memberof CreateGratitudeDto
      */
-    'userId': number;
+    'userIds': Array<number>;
     /**
      * 
      * @type {number}
@@ -1644,7 +1644,13 @@ export interface NotificationConnectionExistsDto {
      * @type {string}
      * @memberof NotificationConnectionExistsDto
      */
-    'externalId': string;
+    'externalId'?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof NotificationConnectionExistsDto
+     */
+    'userId'?: number;
 }
 /**
  * 
