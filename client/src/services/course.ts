@@ -7,8 +7,15 @@ import { ScoreTableFilters } from 'common/types/score';
 import { IPaginationInfo, Pagination } from 'common/types/pagination';
 import { onlyDefined } from '../utils/onlyDefined';
 import { PreferredStudentsLocation } from 'common/enums/mentor';
-import { CoursesTasksApi } from 'api';
 import { ColumnType } from 'antd/lib/table';
+import {
+  CoursesTasksApi,
+  CoursesEventsApi,
+  CreateCourseTaskDto,
+  UpdateCourseTaskDto,
+  UpdateCourseEventDto,
+  CreateCourseEventDto,
+} from 'api';
 
 export type CrossCheckStatus = 'initial' | 'distributed' | 'completed';
 export type Checker = 'auto-test' | 'mentor' | 'assigned' | 'taskOwner' | 'crossCheck';
@@ -127,12 +134,6 @@ export interface CourseUser {
   isSupervisor: boolean;
 }
 
-export interface CreateCourseTask {
-  taskId: number;
-  maxScore?: number;
-  scoreWeight?: number;
-}
-
 export interface MentorWithContacts {
   githubId: string;
   email: string;
@@ -154,6 +155,7 @@ export type AllStudents = { students: StudentBasic[]; assignedStudents: Assigned
 export type SearchStudent = UserBasic & { mentor: UserBasic | null };
 
 const courseTasksApi = new CoursesTasksApi();
+const courseEventsApi = new CoursesEventsApi();
 
 export class CourseService {
   private axios: AxiosInstance;
@@ -195,14 +197,28 @@ export class CourseService {
     return result.data.data;
   }
 
-  async createCourseEvent(data: Partial<CourseEvent>) {
-    const result = await this.axios.post<{ data: CourseEvent }>(`/event`, data);
-    return result.data.data;
+  async createCourseEvent(data: CreateCourseEventDto) {
+    const { organizer, ...rest } = data;
+    await courseEventsApi.createCourseEvent(this.courseId, {
+      organizer: organizer
+        ? {
+            id: organizer.id,
+          }
+        : undefined,
+      ...rest,
+    });
   }
 
-  async updateCourseEvent(courseTaskId: number, data: any) {
-    const result = await this.axios.put<{ data: CourseEvent }>(`/event/${courseTaskId}`, data);
-    return result.data.data;
+  async updateCourseEvent(courseEventId: number, data: Partial<UpdateCourseEventDto>) {
+    const { organizer, ...rest } = data;
+    await courseEventsApi.updateCourseEvent(this.courseId, courseEventId, {
+      organizer: organizer
+        ? {
+            id: organizer.id,
+          }
+        : undefined,
+      ...rest,
+    });
   }
 
   async postMultipleEntities(data: Partial<CourseTask | CourseEvent>, timeZone: string) {
@@ -214,8 +230,7 @@ export class CourseService {
   }
 
   async deleteCourseEvent(courseTaskId: number) {
-    const result = await this.axios.delete<any>(`/event/${courseTaskId}`);
-    return result.data.data;
+    await courseEventsApi.deleteCourseEvent(courseTaskId, this.courseId);
   }
 
   async getCourseStudents(activeOnly?: boolean) {
@@ -266,19 +281,16 @@ export class CourseService {
     return result.data.data;
   }
 
-  async createCourseTask(data: CreateCourseTask) {
-    const result = await this.axios.post<{ data: CourseTask }>(`/task`, data);
-    return result.data.data;
+  async createCourseTask(data: CreateCourseTaskDto) {
+    await courseTasksApi.createCourseTask(this.courseId, data);
   }
 
-  async updateCourseTask(courseTaskId: number, data: any) {
-    const result = await this.axios.put<{ data: CourseTask }>(`/task/${courseTaskId}`, data);
-    return result.data.data;
+  async updateCourseTask(courseTaskId: number, data: UpdateCourseTaskDto) {
+    await courseTasksApi.updateCourseTask(this.courseId, courseTaskId, data);
   }
 
   async deleteCourseTask(courseTaskId: number) {
-    const result = await this.axios.delete<any>(`/task/${courseTaskId}`);
-    return result.data.data;
+    await courseTasksApi.deleteCourseTask(courseTaskId, this.courseId);
   }
 
   async getCourseScore(
