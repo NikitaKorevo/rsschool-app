@@ -30,14 +30,15 @@ export class ScoreController {
   @CacheTTL(DEFAULT_CACHE_TTL)
   @UseInterceptors(CacheInterceptor)
   public async getScore(@Query() query: ScoreQueryDto, @Param('courseId', ParseIntPipe) courseId: number) {
-    const orderBy: OrderField = query.orderBy ?? 'totalScore';
-    const orderDirection: OrderDirection = (query.orderDirection?.toUpperCase() as OrderDirection) ?? 'DESC';
-    const page = parseInt(query.current);
-    const limit = parseInt(query.pageSize);
+    const queryCopy = Object.fromEntries(Object.entries(query).map(([key, value]) => [key, value.trim()]));
+    const orderBy: OrderField = queryCopy.orderBy ?? 'totalScore';
+    const orderDirection: OrderDirection = (queryCopy.orderDirection?.toUpperCase() as OrderDirection) ?? 'DESC';
+    const page = parseInt(queryCopy.current);
+    const limit = parseInt(queryCopy.pageSize);
 
     const score = await this.scoreService.getScore({
       courseId,
-      filter: query,
+      filter: queryCopy,
       orderBy: { field: orderBy, direction: orderDirection },
       page,
       limit,
