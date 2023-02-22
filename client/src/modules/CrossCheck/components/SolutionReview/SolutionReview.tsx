@@ -1,7 +1,21 @@
-import { Alert, Button, Col, Comment, Divider, Form, message, notification, Row, Spin, Typography } from 'antd';
+import {
+  Alert,
+  Button,
+  Col,
+  Comment,
+  Divider,
+  Form,
+  message,
+  notification,
+  Row,
+  Spin,
+  Tooltip,
+  Typography,
+} from 'antd';
 import PreparedComment, { markdownLabel } from 'components/Forms/PreparedComment';
 import { ScoreIcon } from 'components/Icons/ScoreIcon';
 import { SolutionReviewSettings } from 'modules/CrossCheck/constants';
+import { PhoneTwoTone } from '@ant-design/icons';
 import { useEffect, useMemo, useState } from 'react';
 import {
   CourseService,
@@ -127,12 +141,29 @@ function SolutionReview(props: SolutionReviewProps) {
         <Col span={24}>
           <Comment
             avatar={
-              <UserAvatar
-                author={author}
-                role={CrossCheckMessageAuthorRole.Reviewer}
-                areContactsVisible={settings.areContactsVisible}
-                size={32}
-              />
+              <>
+                <Row>
+                  <UserAvatar
+                    author={author}
+                    role={CrossCheckMessageAuthorRole.Reviewer}
+                    areContactsVisible={settings.areContactsVisible}
+                    size={32}
+                  />
+                </Row>
+
+                <Row justify="space-between">
+                  <Col>
+                    <Tooltip title={"Reviewer does't receives notification"} placement="bottomLeft">
+                      <PhoneTwoTone twoToneColor="gray" />
+                    </Tooltip>
+                  </Col>
+                  <Col>
+                    <Tooltip title={'Student receives notification'} placement="bottomLeft">
+                      <PhoneTwoTone twoToneColor="#52c41a" />
+                    </Tooltip>
+                  </Col>
+                </Row>
+              </>
             }
             content={
               <>

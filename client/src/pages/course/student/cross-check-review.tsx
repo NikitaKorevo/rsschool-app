@@ -1,5 +1,6 @@
-import { EyeFilled, EyeInvisibleFilled } from '@ant-design/icons';
-import { Button, Checkbox, Col, Form, message, Modal, Row, Typography } from 'antd';
+import { EyeFilled, EyeInvisibleFilled, ExclamationCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Button, Checkbox, Col, Form, message, Modal, Row, Space, Tooltip, Typography } from 'antd';
+
 import { TasksCriteriaApi } from 'api';
 import { CourseTaskSelect, ScoreInput } from 'components/Forms';
 import MarkdownInput from 'components/Forms/MarkdownInput';
@@ -287,9 +288,25 @@ function Page(props: CoursePageProps) {
             )}
             <ScoreInput courseTask={courseTask} />
             <MarkdownInput historicalCommentSelected={historicalCommentSelected} />
-            <Form.Item name="visibleName" valuePropName="checked" initialValue={isUsernameVisible}>
-              <Checkbox onChange={handleUsernameVisibilityChange}>Make my name visible in feedback</Checkbox>
-            </Form.Item>
+            <Space align="baseline" size={0}>
+              <Form.Item name="visibleName" valuePropName="checked" initialValue={isUsernameVisible}>
+                <Checkbox onChange={handleUsernameVisibilityChange}>Make my name visible in feedback</Checkbox>
+              </Form.Item>
+              <Tooltip
+                overlayStyle={{ whiteSpace: 'pre-line' }}
+                title={
+                  <>
+                    <div>Conditions for anonymity:</div>
+                    <div>
+                      <CheckCircleOutlined /> notification of messages enabled
+                    </div>
+                  </>
+                }
+              >
+                <ExclamationCircleOutlined />
+              </Tooltip>
+            </Space>
+            <br />
             {isUsernameVisible ? (
               <Button size="large" type="primary" htmlType="submit" icon={<EyeFilled />} disabled={submissionDisabled}>
                 Submit review as {props.session.githubId}
